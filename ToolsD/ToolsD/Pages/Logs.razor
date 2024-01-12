@@ -1,0 +1,126 @@
+﻿@page "/Logs"
+@using ToolsD.Services
+@inject LogService service
+@inject FileService fileservice
+@inject ISnackbar snackbar
+
+<EditForm Model="@requestLogs" OnValidSubmit="BuscarRegistros">
+    <DataAnnotationsValidator/>
+    <MudPaper Class="pa-4 d-flex flex-row" Elevation="0">
+        <MudDatePicker Label="Fecha Desde"  @bind-Date="requestLogs.FechaDesde" />
+        <MudDatePicker Label="Fecha Hasta"  @bind-Date="requestLogs.FechaHasta" />
+    </MudPaper>
+    <MudPaper Class="pa-4 d-flex flex-row" Elevation="0">
+        <MudCheckBox @bind-Value="@requestLogs.BuscarPendientes" Label="Buscar Pendientes"></MudCheckBox>
+        <MudCheckBox @bind-Value="@requestLogs.Resumido" Label="Ver Agrupado"></MudCheckBox>
+
+    </MudPaper>
+    <MudSpacer/>
+
+    <MudItem Elevation="0" Class="mt-2">
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search" Class="ml-auto">Buscar</MudButton>
+        <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Secondary"  @onclick="@(e => BorrarFechas() )" Class="ml-auto">Borrar fechas consultadas</MudButton>
+    </MudItem>
+</EditForm> 
+<MudSpacer/>
+
+@if (_loading || (responseData.Errores!= null && responseData.Errores.Any())){
+<MudTable Items="@responseData.Errores" Dense="true" Striped="true" Loading="@_loading" Filter="new Func<ErrorData,bool>(FilterFunc1)"
+         HorizontalScrollbar="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" @bind-SelectedItem="selectedItem1">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Listado de errores   @responseData.FechasConsultadas</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchStringX" Placeholder="Buscar" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+
+    <HeaderContent>
+            <MudTh>Cantidad</MudTh>
+            <MudTh>Tipo Error</MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+            <MudTd DataLabel="Cantidad">@context.Count</MudTd>
+            <MudTd DataLabel="Tipo Error">@context.ContieneErrorComun</MudTd>
+    </RowTemplate>
+
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+
+</MudTable>
+<MudSpacer/>
+<div class="d-flex flex-wrap mt-4">
+    <div style="min-width:200px;">
+        
+        <MudText  Class="align-self-center"> <b> Transport Name:</b> @selectedItem1?.TransportName</MudText>
+        <MudText Class="align-self-center"> <b> Response Message:</b> @selectedItem1?.RequestMessage</MudText>
+        <MudText  Class="align-self-center"> <b>Request Message: </b> @selectedItem1?.RequestMessage</MudText>
+    </div>
+</div>
+}else{
+  <MudSpacer/>
+  <MudCard Elevation="0">
+        <MudText Typo="Typo.h4" Color="Color.Info">No hay registros</MudText>
+        <MudText Typo="Typo.subtitle1">No se encontraron registros en la tabla.</MudText>
+  </MudCard>
+}
+
+<MudSpacer />
+
+<div class="d-flex flex-wrap mt-4">
+    <div style="min-width:200px;">
+        <MudText  Class="align-self-center" Color="Color.Error"> @responseData.FechasError </MudText>
+    </div>
+</div>
+<MudSpacer />
+
+@code {
+    RequestLogs requestLogs = new RequestLogs()
+        {
+            FechaDesde = DateTime.Now.AddDays(-1),
+            FechaHasta = DateTime.Now.AddDays(-1),
+    };
+    bool _loading = false;
+    private string searchStringX = "";
+    private ErrorData selectedItem1 = null;
+
+    ResponseData responseData = new ResponseData();
+
+    async Task BuscarRegistros()
+    {
+        selectedItem1 = null;
+        _loading = true;
+        responseData = await service.BuscarLogs(requestLogs);
+        if(!string.IsNullOrEmpty(responseData.FechasConsultadas)) responseData.FechasConsultadas = "Fechas consultadas: " + responseData.FechasConsultadas;
+        if(!string.IsNullOrEmpty(responseData.FechasError)) responseData.FechasError = "Fechas con error: " + responseData.FechasError;
+
+        _loading = false;
+        StateHasChanged();
+
+    }
+    private bool FilterFunc1(ErrorData errorData) => FilterFunc(errorData, searchStringX);
+
+    private bool FilterFunc(ErrorData errorData, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (errorData.ContieneErrorComun.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (errorData.TransportName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (errorData.RequestMessage.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (errorData.ResponseMessage.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+    private void BorrarFechas()
+    {
+        _loading = true;
+        fileservice.DeleteDates();
+        _loading = false;
+        snackbar.Add("Se borraron las fechas consultadas anteriormente.", Severity.Success);
+        StateHasChanged();
+
+    }
+}
