@@ -7,10 +7,7 @@ namespace ToolsD.Services
 {
     public class FileService
     {
-        readonly IConfiguration _configuration;
         readonly ILocalStorageService _localStorageService;
-  
-
 
         public FileService(ILocalStorageService localStorageService)
         {
@@ -20,7 +17,6 @@ namespace ToolsD.Services
 
         public void PrintColor(string Tipo, string Valor, ConsoleColor color = ConsoleColor.Red)
         {
-          
         }
 
 
@@ -77,41 +73,45 @@ namespace ToolsD.Services
         {
             List<DateTime> fechas = new List<DateTime>();
 
-            for (DateTime f = fd; f <= fh; f = f.AddDays(1))
+            for (DateTime f = fd.Date; f.Date <= fh.Date; f = f.AddDays(1))
             {
-                fechas.Add(f);
+                fechas.Add(f.Date);
             }
 
             await WriteDates(fechas);
         }
+
         private async Task WriteDates(List<DateTime> dates)
         {
             List<DateTime> existingDates = await _localStorageService.GetItem<List<DateTime>>("consultedDates") ?? new List<DateTime>();
 
             dates.ForEach(date =>
             {
-                if (!existingDates.Contains(date))
+                if (!existingDates.Contains(date.Date))
                 {
-                    existingDates.Add(date);
+                    existingDates.Add(date.Date);
                 }
             });
 
             await _localStorageService.SetItem("consultedDates", existingDates);
         }
+
         public void DeleteDates()
         {
-           _localStorageService.RemoveItem("consultedDates");
+            _localStorageService.RemoveItem("consultedDates");
         }
+
         public async Task<List<DateTime>> ReadDates()
         {
             List<DateTime> serializedDates = await _localStorageService.GetItem<List<DateTime>>("consultedDates");
             if (serializedDates == null)
                 return new List<DateTime>();
 
-            return serializedDates;
+            return serializedDates.Select(date => date.Date).ToList();
         }
 
         #endregion
+
         public Response DeserializeResponse(string responseContent)
         {
             try

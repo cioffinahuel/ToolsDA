@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using MudBlazor;
 using MudBlazor.Services;
 using System.Reflection;
-using ToolsD.Data;
 using ToolsD.Services;
 
 namespace ToolsD
@@ -51,9 +50,6 @@ namespace ToolsD
             builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif
-
-            builder.Services.AddSingleton<WeatherForecastService>();
-
             return builder.Build();
         }
     }

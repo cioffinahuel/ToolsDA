@@ -136,13 +136,14 @@ namespace ToolsD.Services
                             responseData.FechasConsultadas += rangoFecha;
 
                             responseData.MensajeData.AddRange(responseObj.Mensajes.MensajeData);
-                            Tools.PrintColor($"Rango consultado desde:", $" {fecha} - hasta:{fechah}", ConsoleColor.Green);
+                            //Tools.PrintColor($"Rango consultado desde:", $" {fecha} - hasta:{fechah}", ConsoleColor.Green);
 
                         }
                         else
                         {
-                            Tools.PrintColor($"Rango consultado desde:", $" {fecha} - hasta:{fechah}");
-                            Tools.PrintColor("La respuesta del servidor está vacía.", null);
+                            AddFechaError(responseData, fecha, fechah);
+                            //Tools.PrintColor($"Rango consultado desde:", $" {fecha} - hasta:{fechah}");
+                            //Tools.PrintColor("La respuesta del servidor está vacía.", null);
                         }
                 }
                 else
@@ -161,14 +162,15 @@ namespace ToolsD.Services
 
         public List<ErrorData> GetErrores(Response responseObj, string[] erroresComunes)
         {
+
             return responseObj.Mensajes.MensajeData
-               .Select(x => new ErrorData(
-                   1,
-                   x.transportname,
-                   x.requestmessage,
-                   x.responseMessage,
-                   erroresComunes.FirstOrDefault(e => x.responseMessage.Contains(e)) ?? x.responseMessage.Substring(0, Math.Min(200, x.responseMessage.Length)))
-               ).ToList();
+                .Select(x => new ErrorData(
+                    1,
+                    x.transportname,
+                    x.requestmessage,
+                    x.responseMessage ?? "Sin response Message",
+                    erroresComunes.FirstOrDefault(e => x.responseMessage?.Contains(e) ?? false) ?? x.responseMessage?.Substring(0, Math.Min(200, x.responseMessage?.Length ?? 0)) ?? "Sin error message"
+                )).ToList();
         }
 
         public string GetRangoFecha(DateTime fecha, DateTime fechah)

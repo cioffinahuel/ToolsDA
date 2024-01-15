@@ -4,17 +4,15 @@ using System.Text.Json;
 namespace ToolsD.Services;
 public class LocalStorageService : ILocalStorageService
 {
-    private IJSRuntime _jsRuntime;
 
-    public LocalStorageService(IJSRuntime jsRuntime)
+
+    public LocalStorageService()
     {
-        _jsRuntime = jsRuntime;
     }
 
     public async Task<T> GetItem<T>(string key)
     {
-        var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", key);
-
+        var json = Preferences.Default.Get<string>(key, null); 
         if (json == null)
             return default;
 
@@ -23,11 +21,11 @@ public class LocalStorageService : ILocalStorageService
 
     public async Task SetItem<T>(string key, T value)
     {
-        await _jsRuntime.InvokeVoidAsync("localStorage.setItem", key, JsonSerializer.Serialize(value));
+       Preferences.Default.Set(key, JsonSerializer.Serialize(value));
     }
 
     public async Task RemoveItem(string key)
     {
-        await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", key);
+        Preferences.Default.Remove(key);
     }
 }
