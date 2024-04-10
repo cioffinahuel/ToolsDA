@@ -5,102 +5,123 @@
 @inject ISnackbar snackbar
 
 <EditForm Model="@requestLogs" OnValidSubmit="BuscarRegistros">
-    <DataAnnotationsValidator/>
+    <DataAnnotationsValidator />
+
     <MudPaper Class="pa-4 d-flex flex-row" Elevation="0">
-        <MudDatePicker Label="Fecha Desde"  @bind-Date="requestLogs.FechaDesde" />
-        <MudDatePicker Label="Fecha Hasta"  @bind-Date="requestLogs.FechaHasta" />
+        <MudDatePicker Label="Fecha Desde" @bind-Date="requestLogs.FechaDesde" />
+        <MudDatePicker Label="Fecha Hasta" @bind-Date="requestLogs.FechaHasta" />
     </MudPaper>
+
     <MudPaper Class="pa-4 d-flex flex-row" Elevation="0">
         <MudCheckBox @bind-Value="@requestLogs.BuscarPendientes" Label="Buscar Pendientes"></MudCheckBox>
         <MudCheckBox @bind-Value="@requestLogs.Resumido" Label="Ver Agrupado"></MudCheckBox>
 
     </MudPaper>
-    <MudSpacer/>
+    <MudSpacer />
 
     <MudItem Elevation="0" Class="mt-2">
         <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search" Class="ml-auto">Buscar</MudButton>
-        <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Secondary"  @onclick="@(e => BorrarFechas() )" Class="ml-auto">Borrar fechas consultadas</MudButton>
+        <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Secondary" @onclick="@(e => BorrarFechas() )" Class="ml-auto">Borrar fechas consultadas</MudButton>
+        <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Tertiary" @onclick="@(e => ExportTXT() )" EndIcon="@Icons.Material.Filled.Download" Class="ml-auto">Exportar Resultados</MudButton>
+
     </MudItem>
-</EditForm> 
-<MudSpacer/>
+</EditForm>
+<MudSpacer />
 
-@if (_loading || (responseData.Errores!= null && responseData.Errores.Any())){
-<MudTable Items="@responseData.Errores" Dense="true" Striped="true" Loading="@_loading" Filter="new Func<ErrorData,bool>(FilterFunc1)"
-         HorizontalScrollbar="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" @bind-SelectedItem="selectedItem1">
-    <ToolBarContent>
-        <MudText Typo="Typo.h6">Listado de errores   @responseData.FechasConsultadas</MudText>
-        <MudSpacer />
-        <MudTextField @bind-Value="searchStringX" Placeholder="Buscar" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-    </ToolBarContent>
+@if (_loading || (responseDataB.Errores != null && responseDataB.Errores.Any()))
+{
+    <MudTable Items="@responseDataB.Errores" Dense="true" Striped="true" Loading="@_loading" Filter="new Func<ErrorData,bool>(FilterFunc1)"
+              HorizontalScrollbar="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" @bind-SelectedItem="selectedItem1">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Listado de errores   @responseDataB.FechasConsultadas</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchStringX" Placeholder="Buscar" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
 
-    <HeaderContent>
+        <HeaderContent>
             <MudTh>Cantidad</MudTh>
             <MudTh>Tipo Error</MudTh>
-    </HeaderContent>
+        </HeaderContent>
 
-    <RowTemplate>
+        <RowTemplate>
             <MudTd DataLabel="Cantidad">@context.Count</MudTd>
             <MudTd DataLabel="Tipo Error">@context.ContieneErrorComun</MudTd>
-    </RowTemplate>
+        </RowTemplate>
 
-    <PagerContent>
-        <MudTablePager />
-    </PagerContent>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
 
-</MudTable>
-<MudSpacer/>
-<div class="d-flex flex-wrap mt-4">
-    <div style="min-width:200px;">
-        
-        <MudText  Class="align-self-center"> <b> Transport Name:</b> @selectedItem1?.TransportName</MudText>
-        <MudText Class="align-self-center"> <b> Response Message:</b> @selectedItem1?.RequestMessage</MudText>
-        <MudText  Class="align-self-center"> <b>Request Message: </b> @selectedItem1?.RequestMessage</MudText>
+    </MudTable>
+    <MudSpacer />
+    <div class="d-flex flex-wrap mt-4">
+        <div style="min-width:200px;">
+            <MudText Class="align-self-center"> <b> Transport Name:</b> @selectedItem1?.TransportName</MudText>
+            <MudText Class="align-self-center"> <b> Error Name: </b> @selectedItem1?.ContieneErrorComun</MudText>
+            <MudText Class="align-self-center"> <b> Response Message:</b> @selectedItem1?.RequestMessage</MudText>
+            <MudText Class="align-self-center"> <b> Request Message: </b> @selectedItem1?.RequestMessage</MudText>
+        </div>
     </div>
-</div>
-}else{
-  <MudSpacer/>
-  <MudCard Elevation="0">
+}
+else
+{
+    <MudSpacer />
+    <MudCard Elevation="0">
         <MudText Typo="Typo.h4" Color="Color.Info">No hay registros</MudText>
         <MudText Typo="Typo.subtitle1">No se encontraron registros en la tabla.</MudText>
-  </MudCard>
+    </MudCard>
 }
 
 <MudSpacer />
 
 <div class="d-flex flex-wrap mt-4">
     <div style="min-width:200px;">
-        <MudText  Class="align-self-center" Color="Color.Error"> @responseData.FechasError </MudText>
+        <MudText Class="align-self-center" Color="Color.Error"> @responseData.FechasError </MudText>
     </div>
 </div>
 <MudSpacer />
 
 @code {
+    #region Propiedades
     RequestLogs requestLogs = new RequestLogs()
         {
             FechaDesde = DateTime.Now.AddDays(-1),
             FechaHasta = DateTime.Now.AddDays(-1),
-    };
+        };
     bool _loading = false;
     private string searchStringX = "";
     private ErrorData selectedItem1 = null;
-
     ResponseData responseData = new ResponseData();
+    ResponseData responseDataB = new ResponseData();
+    #endregion
 
     async Task BuscarRegistros()
     {
         selectedItem1 = null;
         _loading = true;
         responseData = await service.BuscarLogs(requestLogs);
-        if(!string.IsNullOrEmpty(responseData.FechasConsultadas)) responseData.FechasConsultadas = "Fechas consultadas: " + responseData.FechasConsultadas;
-        if(!string.IsNullOrEmpty(responseData.FechasError)) responseData.FechasError = "Fechas con error: " + responseData.FechasError;
+        responseDataB = responseData;
+        if (!string.IsNullOrEmpty(responseData.FechasConsultadas)) responseData.FechasConsultadas = "Fechas consultadas: " + responseData.FechasConsultadas;
+        if (!string.IsNullOrEmpty(responseData.FechasError)) responseData.FechasError = "Fechas con error: " + responseData.FechasError;
+
+        if (requestLogs.Resumido)
+            responseDataB.Errores = responseData.ErroresAgrupado.Select(x => x).ToList();
 
         _loading = false;
         StateHasChanged();
 
     }
-    private bool FilterFunc1(ErrorData errorData) => FilterFunc(errorData, searchStringX);
 
-    private bool FilterFunc(ErrorData errorData, string searchString)
+    async Task ExportTXT()
+    {
+        _loading = true;
+        await service.ExportTXT(responseData);
+        _loading = false;
+    }
+
+    bool FilterFunc1(ErrorData errorData) => FilterFunc(errorData, searchStringX);
+
+    bool FilterFunc(ErrorData errorData, string searchString)
     {
         if (string.IsNullOrWhiteSpace(searchString))
             return true;
@@ -114,7 +135,8 @@
             return true;
         return false;
     }
-    private void BorrarFechas()
+
+    void BorrarFechas()
     {
         _loading = true;
         fileservice.DeleteDates();

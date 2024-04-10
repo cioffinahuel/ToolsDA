@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Storage;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MudBlazor;
 using MudBlazor.Services;
@@ -14,6 +16,7 @@ namespace ToolsD
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -29,7 +32,9 @@ namespace ToolsD
                         .Build();
 
             builder.Configuration.AddConfiguration(config);
-            builder.Services.AddScoped<ILocalStorageService, LocalStorageService>();
+            builder.Services.AddSingleton<IFileSaver>(FileSaver.Default);
+
+            builder.Services.AddSingleton<ILocalStorageService, LocalStorageService>();
 
             builder.Services.AddScoped<LogService, LogService>();
             builder.Services.AddScoped<FileService, FileService>();

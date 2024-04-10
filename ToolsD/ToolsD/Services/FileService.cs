@@ -33,7 +33,9 @@ namespace ToolsD.Services
                 "Conversion failed when converting the nvarchar value 'Transaction (Process ID 889) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction. - ' to data type int.",
                 "Conversion failed when converting the nvarchar value 'Transaction (Process ID 645) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction. - ' to data type int.",
                 "Conversion failed when converting the nvarchar value 'Transaction (Process ID 122) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction. - ' to data type int.",
-                "Conversion failed when converting the nvarchar value 'Transaction (Process ID 131) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction. - ' to data type int."
+                "Conversion failed when converting the nvarchar value 'Transaction (Process ID 131) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction. - ' to data type int.",
+                "Conversion failed when converting the nvarchar value 'Violation of PRIMARY KEY constraint 'DOC_PACIENTE_PK'",
+                "Conversion failed when converting"
             });
 
         }
@@ -42,14 +44,6 @@ namespace ToolsD.Services
         {
             string serializedErrors = JsonConvert.SerializeObject(errors);
             await _localStorageService.SetItem("errors", serializedErrors);
-        }
-        private async Task WriteErrors(string[] errors)
-        {
-            List<string> existingErrors = await _localStorageService.GetItem<List<string>>("errors") ?? new List<string>();
-
-            existingErrors.AddRange(errors);
-
-            await _localStorageService.SetItem("errors", existingErrors);
         }
 
         public void DeleteErrors()
@@ -135,7 +129,6 @@ namespace ToolsD.Services
             }
             return null;
         }
-
         private List<MensajeData> DeserializeMensajeData(JObject jsonObject)
         {
             try

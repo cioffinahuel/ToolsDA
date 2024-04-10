@@ -24,7 +24,10 @@
         public string FechasConsultadas { get; set; } = "";
         public string FechasError { get; set; } = "";
 
-        public List<ErrorData> Errores = new List<ErrorData>();
+        public List<ErrorData> Errores = new();
+        public List<ErrorData> ErroresAgrupado = new();
+
+
     }
     public class ErrorData
     {

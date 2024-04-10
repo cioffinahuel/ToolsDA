@@ -1,11 +1,35 @@
-﻿<Router AppAssembly="@typeof(Main).Assembly">
+﻿@inject NavigationManager NavigationManager
+
+<Router AppAssembly="@typeof(Main).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
     <NotFound>
         <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
+           <div class="row">
+
+                <div class="col-lg-3 col-md-5 col-sm-6 col-xs-6 cursor-pointer" @onclick="@(e => Navegar("Logs"))">
+                    <div class="box-part text-center">
+                        <img class="imagen-icon img-fluid rounded-circle mb-1">
+                        <h5 class="text-center"> Consulta de Logs HL Server</h5>
+                        <span class="small "> </span>
+                    </div>
+                </div>
+           </div>
         </LayoutView>
     </NotFound>
 </Router>
+
+@code{
+
+    private async Task Navegar(string url)
+    {
+      
+        var URL = $"{NavigationManager.BaseUri}{url}";
+        NavigationManager.NavigateTo(URL);
+        
+    }
+}
+
+
